@@ -7,6 +7,13 @@ Created on Tue Dec 31 13:15:45 2019
 
 import discord
 from discord.ext import commands
+import json
+import random
+import os
+
+
+with open("setting.json", "r", encoding="utf8") as jfile:
+    jdata = json.load(jfile)
 
 bot = commands.Bot(command_prefix = ">")
 
@@ -14,14 +21,30 @@ bot = commands.Bot(command_prefix = ">")
 async def on_ready():
     print("I'm here.")
     
-@bot.event
-async def on_member_join(member):
-    channel = bot.get_channel(661444571854536715)
-    await channel.send(f"{member} join!")
+  
+@bot.command()
+async def load(ctx, extension):
+    bot.load_extension("cmds.{extension}".format(extension=extension))
+    await ctx.send("Loaded {extension} done!".format(extension=extension))
 
-@bot.event
-async def on_member_remove(member):
-    channel = bot.get_channel(661444571854536715)
-    await channel.send(f"{member} leave!")
+@bot.command()
+async def unload(ctx, extension):
+    bot.unload_extension("cmds.{extension}".format(extension=extension))
+    await ctx.send("Unloaded {extension} done!".format(extension=extension))
+    
+@bot.command()
+async def reload(ctx, extension):
+    bot.reload_extension("cmds.{extension}".format(extension=extension))
+    await ctx.send("Reloaded {extension} done!".format(extension=extension))
 
-bot.run("NjYxNDMxNjQ4MDE2OTI0Njky.XgrUfg.SM1_sfEM7p0WnYjnycgvZ6URF1c")
+
+    
+for filename in os.listdir("./cmds"):
+    if filename.endswith(".py"):
+        bot.load_extension("cmds.{filename}".format(filename=filename[:-3]))
+
+    
+
+
+if __name__ == "__main__":
+    bot.run(jdata["TOKEN"])
