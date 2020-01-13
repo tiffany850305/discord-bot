@@ -10,6 +10,7 @@ from discord.ext import commands
 from core.classes import Cog_Extension
 import json
 import random
+import time
 
 with open("setting.json", "r", encoding="utf8") as jfile:
     jdata = json.load(jfile)
@@ -31,34 +32,45 @@ class Event(Cog_Extension):
         before_ = str(before.channel)
         after_ = str(after.channel)
         member_ = str(member).split("#")[0]
-        if before_ == "306同學會" or before_ == "兩人世界":
+        voice_channel_1 = str(self.bot.get_channel(jdata["voice_channel"][0]))
+        voice_channel_2 = str(self.bot.get_channel(jdata["voice_channel"][1]))
+        voice_channel_3 = str(self.bot.get_channel(jdata["voice_channel"][2]))
+        voice_channel_4 = str(self.bot.get_channel(jdata["voice_channel"][3]))
+        voice_channel_hidden_1 = str(self.bot.get_channel(jdata["voice_channel_hidden"][0]))
+        voice_channel_hidden_2 = str(self.bot.get_channel(jdata["voice_channel_hidden"][1]))
+        if before_ == voice_channel_hidden_1 or before_ == voice_channel_hidden_2:
             before_ = "None"
-        if after_ == "306同學會" or after_ == "兩人世界":
+        if after_ == voice_channel_hidden_1 or after_ == voice_channel_hidden_2:
             after_ = "None"
+        # time
+        #localtime = time.localtime(time.time())
+        time_ = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         # join
         if before_ == "None":
-            if after_ == "髒話色情性別歧視酒毒品" or after_ == "清新健康" or after_ == "讀書會" or after_ == "掛機":
-                await channel.send("{member_}加入「{after_}」。".format(member_=member_, after_=after_))
+            if after_ == voice_channel_1 or after_ == voice_channel_2 or after_ == voice_channel_3 or after_ == voice_channel_4:
+                await channel.send("{member_}加入「{after_}」。{time_}".format(member_=member_, after_=after_, time_=time_))
         # leave
         if after_ == "None":
-            if before_ == "髒話色情性別歧視酒毒品" or before_ == "清新健康" or before_ == "讀書會" or before_ == "掛機":
-                await channel.send("{member_}離開「{before_}」。".format(member_=member_, before_=before_))
+            if before_ == voice_channel_1 or before_ == voice_channel_2 or before_ == voice_channel_3 or before_ == voice_channel_4:
+                await channel.send("{member_}離開「{before_}」。{time_}".format(member_=member_, before_=before_, time_=time_))
         # change
         if before_ != after_:
-            if before_ == "髒話色情性別歧視酒毒品" or before_ == "清新健康" or before_ == "讀書會" or before_ == "掛機":
-                if after_ == "髒話色情性別歧視酒毒品" or after_ == "清新健康" or after_ == "讀書會" or after_ == "掛機":
-                    await channel.send("{member_}加入「{after_}」！".format(member_=member_, after_=after_))
-        if before_ == after_ and (before_ == "髒話色情性別歧視酒毒品" or before_ == "清新健康" or before_ == "讀書會" or before_ == "掛機"):
+            if before_ == voice_channel_1 or before_ == voice_channel_2 or before_ == voice_channel_3 or before_ == voice_channel_4:
+                if after_ == voice_channel_1 or after_ == voice_channel_2 or after_ == voice_channel_3 or after_ == voice_channel_4:
+                    await channel.send("{member_}加入「{after_}」。{time_}".format(member_=member_, after_=after_, time_=time_))
+        if before_ == after_ and (before_ == voice_channel_1 or before_ == voice_channel_2 or before_ == voice_channel_3 or before_ == voice_channel_4):
             if before.self_mute == False and after.self_mute == True:
-                await channel.send("{member_}靜音。".format(member_=member_))
+                await channel.send("{member_}靜音。{time_}".format(member_=member_, time_=time_))
             if before.self_mute == True and after.self_mute == False:
-                await channel.send("{member_}解除靜音。".format(member_=member_))
+                await channel.send("{member_}解除靜音。{time_}".format(member_=member_, time_=time_))
         
     
     @commands.Cog.listener()
     async def on_message(self, msg):
+        text_channel_3 = str(self.bot.get_channel(jdata["text_channel"][2]))
+        text_channel_4 = str(self.bot.get_channel(jdata["text_channel"][3]))
         if msg.author != self.bot.user:
-            if str(msg.channel) != "306同學會" and str(msg.channel) != "秘密":
+            if str(msg.channel) != text_channel_3 and str(msg.channel) != text_channel_4:
                 keywords = jdata["keywords"]
                 #split author
                 author = str(msg.author)
@@ -74,7 +86,27 @@ class Event(Cog_Extension):
                         break
                 if keyword_flag:
                     await msg.channel.send("{author}，你這是性騷擾！:angry:".format(author=author))
+    # online or offline
+    @commands.Cog.listener()
+    async def on_member_update(self, before, after):
+        # time
+        #localtime = time.localtime(time.time())
+        time_ = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         
+        channel = self.bot.get_channel(int(jdata["bot_channel"]))
+        channel_lonely = self.bot.get_channel(int(jdata["text_channel"][6]))
+        before_ = str(before.status)
+        after_ = str(after.status)
+        id_ = str(before).split("#")[1]
+        member_ = str(before).split("#")[0]
+        if before_ == "offline" and before_ != after_:
+            await channel.send("{member_}上線啦！{time_}".format(member_=member_, time_=time_))
+            if id_ == "0800":
+                await channel_lonely.send("{member_}上線啦！{time_}".format(member_=member_, time_=time_))
+        if before_ != after_ and after_ == "offline":
+            await channel.send("{member_}下線啦！{time_}".format(member_=member_, time_=time_))
+            if id_ == "0800":
+                await channel_lonely.send("{member_}下線啦！{time_}".format(member_=member_, time_=time_))
         
 def setup(bot):
     bot.add_cog(Event(bot))
