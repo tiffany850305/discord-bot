@@ -16,28 +16,29 @@ with open("setting.json", "r", encoding="utf8") as jfile:
     jdata = json.load(jfile)
     
 class Event(Cog_Extension):
+    # member join server
     @commands.Cog.listener()
     async def on_member_join(self, member):
         channel = self.bot.get_channel(int(jdata["general_channel"]))
         await channel.send("{member} join!".format(member=member))
-    
+    # member leave server
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         channel = self.bot.get_channel(int(jdata["general_channel"]))
         await channel.send("{member} leave!".format(member=member))
-
+    # change voice state
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         channel = self.bot.get_channel(int(jdata["bot_channel"]))
         before_ = str(before.channel)
         after_ = str(after.channel)
         member_ = str(member).split("#")[0]
-        voice_channel_1 = str(self.bot.get_channel(jdata["voice_channel"][0]))
-        voice_channel_2 = str(self.bot.get_channel(jdata["voice_channel"][1]))
-        voice_channel_3 = str(self.bot.get_channel(jdata["voice_channel"][2]))
-        voice_channel_4 = str(self.bot.get_channel(jdata["voice_channel"][3]))
-        voice_channel_hidden_1 = str(self.bot.get_channel(jdata["voice_channel_hidden"][0]))
-        voice_channel_hidden_2 = str(self.bot.get_channel(jdata["voice_channel_hidden"][1]))
+        voice_channel_1 = str(self.bot.get_channel(jdata["voice_channel"][0])) #清新健康
+        voice_channel_2 = str(self.bot.get_channel(jdata["voice_channel"][1])) #髒話
+        voice_channel_3 = str(self.bot.get_channel(jdata["voice_channel"][2])) #讀書會
+        voice_channel_4 = str(self.bot.get_channel(jdata["voice_channel"][3])) #掛機
+        voice_channel_hidden_1 = str(self.bot.get_channel(jdata["voice_channel_hidden"][0])) #306同學會
+        voice_channel_hidden_2 = str(self.bot.get_channel(jdata["voice_channel_hidden"][1])) #兩人世界
         if before_ == voice_channel_hidden_1 or before_ == voice_channel_hidden_2:
             before_ = "None"
         if after_ == voice_channel_hidden_1 or after_ == voice_channel_hidden_2:
@@ -64,7 +65,7 @@ class Event(Cog_Extension):
             if before.self_mute == True and after.self_mute == False:
                 await channel.send("{member_}解除靜音。{time_}".format(member_=member_, time_=time_))
         
-    
+    # keywords detection
     @commands.Cog.listener()
     async def on_message(self, msg):
         text_channel_3 = str(self.bot.get_channel(jdata["text_channel"][2]))
@@ -101,11 +102,11 @@ class Event(Cog_Extension):
         member_ = str(before).split("#")[0]
         if before_ == "offline" and before_ != after_:
             await channel.send("{member_}上線啦！{time_}".format(member_=member_, time_=time_))
-            if id_ == "0800":
+            if id_ == "0800" or id_ == "1250" or id_ == "8101" or id_ == "8459":
                 await channel_lonely.send("{member_}上線啦！{time_}".format(member_=member_, time_=time_))
         if before_ != after_ and after_ == "offline":
             await channel.send("{member_}下線啦！{time_}".format(member_=member_, time_=time_))
-            if id_ == "0800":
+            if id_ == "0800" or id_ == "1250" or id_ == "8101" or id_ == "8459":
                 await channel_lonely.send("{member_}下線啦！{time_}".format(member_=member_, time_=time_))
         
 def setup(bot):
